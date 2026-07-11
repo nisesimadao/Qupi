@@ -28,19 +28,38 @@ app.innerHTML = `
         </div>
       </div>
       <svg class="tonearm" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <radialGradient id="qa-weight" cx="0.42" cy="0.36" r="0.82">
+            <stop offset="0" stop-color="#4e4e58" />
+            <stop offset="1" stop-color="#33333c" />
+          </radialGradient>
+          <linearGradient id="qa-head" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2c2c35" />
+            <stop offset="1" stop-color="#202027" />
+          </linearGradient>
+          <linearGradient id="qa-base" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#33333c" />
+            <stop offset="1" stop-color="#262630" />
+          </linearGradient>
+          <pattern id="qa-hair" width="0.75" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#ffffff" stroke-width="0.2" stroke-opacity="0.07" />
+            <line x1="0.38" y1="0" x2="0.38" y2="6" stroke="#000000" stroke-width="0.18" stroke-opacity="0.11" />
+          </pattern>
+        </defs>
         <g class="arm-g">
-          <line class="cw-stem" x1="104" y1="-2" x2="113" y2="-11" />
-          <rect class="cw" x="109" y="-17" width="11" height="10" rx="5"
-            transform="rotate(-44 114.5 -12)" />
-          <rect class="base" x="98" y="-8" width="12" height="12" rx="3" />
-          <circle class="pivot" cx="104" cy="-2" r="2.6" />
-          <line class="tube" x1="104" y1="-2" x2="88.5" y2="28" />
-          <line class="tube-hi" x1="104" y1="-2" x2="88.5" y2="28" />
-          <g transform="rotate(22 88.5 28)">
-            <rect class="head" x="82.8" y="24.2" width="11.4" height="6.6" rx="1.4" />
-            <rect class="cart" x="85.5" y="30.4" width="6" height="3.6" rx="0.7" />
-            <line class="stylus" x1="88.5" y1="33.8" x2="88.5" y2="36.4" />
-            <circle class="tip" cx="88.5" cy="36.6" r="1" />
+          <line class="cw-stem" x1="104" y1="-2" x2="112" y2="-10.5" />
+          <circle cx="114.6" cy="-13" r="5.4" fill="url(#qa-weight)" />
+          <circle cx="114.6" cy="-13" r="5.4" fill="url(#qa-hair)" />
+          <rect x="99.4" y="-6.6" width="9.2" height="9.2" rx="2.8" fill="url(#qa-base)" />
+          <rect x="99.4" y="-6.6" width="9.2" height="9.2" rx="2.8" fill="url(#qa-hair)" />
+          <circle class="pivot" cx="104" cy="-2" r="1.9" />
+          <line class="tube" x1="104" y1="-2" x2="88.6" y2="28" />
+          <line class="tube-hi" x1="104.5" y1="-2.7" x2="89.1" y2="27.3" />
+          <g transform="rotate(22 88.6 28)">
+            <rect x="82.9" y="23.9" width="11.4" height="6.8" rx="2.2" fill="url(#qa-head)" />
+            <rect x="82.9" y="23.9" width="11.4" height="6.8" rx="2.2" fill="url(#qa-hair)" />
+            <rect class="cart" x="85.6" y="30" width="6" height="3.6" rx="0.9" />
+            <line class="stylus" x1="88.6" y1="33.4" x2="88.6" y2="36.2" />
           </g>
         </g>
       </svg>
