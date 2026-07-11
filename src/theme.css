@@ -222,26 +222,27 @@ body::before {
 /* --- plinth (レコード台): a square wooden deck the record sits on ------ */
 .platter {
   position: absolute;
-  inset: -19%;
+  inset: -15%;
   z-index: 0;
-  border-radius: 7%;
-  /* Warm walnut with a fine straight grain and a soft top bevel. */
+  border-radius: 5%;
+  /* Dark espresso wood — deep and matte, so it sits in the room instead of
+     shouting brown. A fine, low-contrast straight grain and a whisper of a bevel. */
   background:
     repeating-linear-gradient(
-      91deg,
-      rgba(0, 0, 0, 0.13) 0 1px,
-      rgba(0, 0, 0, 0) 1px 6px
+      90deg,
+      rgba(0, 0, 0, 0.22) 0 1px,
+      rgba(0, 0, 0, 0) 1px 5px
     ),
     repeating-linear-gradient(
-      91deg,
-      rgba(255, 255, 255, 0.03) 0 1px,
-      rgba(255, 255, 255, 0) 1px 11px
+      90deg,
+      rgba(255, 255, 255, 0.018) 0 1px,
+      rgba(255, 255, 255, 0) 1px 9px
     ),
-    linear-gradient(158deg, #4a3625 0%, #38281a 55%, #2c1f13 100%);
+    linear-gradient(158deg, #1b140d 0%, #140e08 58%, #0e0906 100%);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 30px 60px rgba(0, 0, 0, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 26px 55px rgba(0, 0, 0, 0.6);
   display: none;
 }
 .turntable.show-platter .platter {
@@ -261,60 +262,47 @@ body::before {
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
 }
 
-/* --- tonearm: pivots at the plinth's top-right, needle on the record --- */
+/* --- tonearm: a precise SVG, pivot on the plinth, needle on the record - */
 .tonearm {
   position: absolute;
-  top: -7%;
-  right: -8%;
+  inset: 0;
   z-index: 3;
-  width: 16px;
-  height: 52%;
-  transform-origin: 8px 8px;
+  width: 100%;
+  height: 100%;
+  overflow: visible; /* the pivot lives just off the record, on the plinth */
   pointer-events: none;
   display: none;
-  transform: rotate(-22deg);
 }
 .turntable.show-tonearm .tonearm {
   display: block;
 }
-.tonearm .pivot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #2a2a34;
-  border: 1px solid #3a3a46;
+.tonearm .tube {
+  stroke: #70707c;
+  stroke-width: 1.9;
+  stroke-linecap: round;
 }
-.tonearm .arm {
-  position: absolute;
-  top: 8px;
-  left: 6px;
-  width: 4px;
-  height: calc(100% - 30px);
-  background: linear-gradient(#4a4a56, #33333d);
-  border-radius: 2px;
+.tonearm .cw {
+  stroke: #4c4c56;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.tonearm .cw-w {
+  fill: #34343d;
+  stroke: #50505a;
+  stroke-width: 0.5;
+}
+.tonearm .pivot {
+  fill: #2c2c34;
+  stroke: #4a4a54;
+  stroke-width: 0.7;
 }
 .tonearm .head {
-  position: absolute;
-  bottom: 0;
-  left: 1px;
-  width: 14px;
-  height: 22px;
-  background: #23232c;
-  border: 1px solid #3a3a46;
-  border-radius: 2px;
+  fill: #23232b;
+  stroke: #4a4a54;
+  stroke-width: 0.5;
 }
-.tonearm .head::after {
-  content: "";
-  position: absolute;
-  bottom: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 5px;
-  background: var(--accent);
+.tonearm .tip {
+  fill: var(--accent);
 }
 
 .disc {

@@ -27,7 +27,17 @@ app.innerHTML = `
           <div class="ring1"><div class="ring2"><div class="label"><div class="hole"></div></div></div></div>
         </div>
       </div>
-      <div class="tonearm"><div class="pivot"></div><div class="arm"></div><div class="head"></div></div>
+      <svg class="tonearm" viewBox="0 0 100 100" aria-hidden="true">
+        <g class="arm-g">
+          <line class="cw" x1="106" y1="-4" x2="115" y2="-13" />
+          <circle class="cw-w" cx="116.5" cy="-14.5" r="3.6" />
+          <line class="tube" x1="106" y1="-4" x2="88" y2="30" />
+          <circle class="pivot" cx="106" cy="-4" r="3.8" />
+          <rect class="head" x="83.4" y="27.6" width="8.6" height="7.4" rx="1.2"
+            transform="rotate(28 87.7 31.3)" />
+          <circle class="tip" cx="85.6" cy="35" r="1.4" />
+        </g>
+      </svg>
     </div>
     <div class="status" id="status">loading…</div>
   </div>
@@ -50,7 +60,7 @@ app.innerHTML = `
 const record = app.querySelector<HTMLElement>(".record")!;
 const disc = app.querySelector<HTMLElement>(".disc")!;
 const turntableEl = app.querySelector<HTMLElement>(".turntable")!;
-const tonearm = app.querySelector<HTMLElement>(".tonearm")!;
+const armG = app.querySelector<SVGGElement>(".arm-g")!;
 const status = app.querySelector<HTMLElement>("#status")!;
 const loader = app.querySelector<HTMLButtonElement>("#loader")!;
 const settingsBtn = app.querySelector<HTMLButtonElement>("#settings")!;
@@ -153,11 +163,13 @@ function armTick(): void {
   requestAnimationFrame(armTick);
   if (!optTonearm.checked) return;
   const prog = audio.duration > 0 ? audio.position / audio.duration : 0;
-  const rest = 22 + prog * 14; // outer groove → inner groove (swings left, so negate)
+  // The arm is drawn resting on the outer groove; rotate it around its pivot as
+  // the track plays (needle tracks inward), plus a drift/shiver from the spin.
+  const track = prog * 15;
   const r = turntable.ratio;
-  const drag = Math.max(-3.5, Math.min(3.5, r * 0.9)); // pulled along with the spin
-  const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.4, Math.abs(r) * 0.7);
-  tonearm.style.transform = `rotate(${-rest + drag + shiver}deg)`;
+  const drag = Math.max(-3, Math.min(3, r * 0.8)); // pulled along with the spin
+  const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.3, Math.abs(r) * 0.6);
+  armG.setAttribute("transform", `rotate(${track + drag + shiver} 106 -4)`);
 }
 requestAnimationFrame(armTick);
 
