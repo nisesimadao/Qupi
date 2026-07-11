@@ -4,6 +4,7 @@
 // jog, tap to play/stop.
 
 import type { QupiAudio } from "./audio";
+import { haptic } from "./haptics";
 
 const NORMAL_SPEED = 90; // deg/s — one turn every 4 s
 const AUDIO_REF = 90; // deg/s that maps to 1.0× playback
@@ -59,6 +60,7 @@ export class Turntable {
   togglePlay(): void {
     this.playing = !this.playing;
     void this.audio.resume();
+    haptic(12); // a firmer thunk when the motor kicks in / cuts out
     this.onToggle?.(this.playing);
   }
 
@@ -146,10 +148,12 @@ export class Turntable {
       // Lean a little more on the live velocity so a flick's momentum carries
       // into the coast (a slippier release).
       this.speed = this.speed * 0.45 + inst * 0.55;
-      // A little tactile buzz on phones that have a motor.
-      if (now - this.lastVibrate > 45 && "vibrate" in navigator) {
+      // A little tactile tick as the groove passes under the finger. Scale the
+      // gap with speed so a fast scratch buzzes finer than a slow drag.
+      const gap = Math.max(28, 90 - Math.abs(inst) * 0.05);
+      if (now - this.lastVibrate > gap) {
         this.lastVibrate = now;
-        navigator.vibrate(6);
+        haptic(5);
       }
     });
     const up = () => {

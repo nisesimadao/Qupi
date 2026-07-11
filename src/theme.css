@@ -276,30 +276,16 @@ body::before {
   overflow: visible; /* the pivot lives just off the record, on the plinth */
   pointer-events: none;
   display: none;
+  /* Lift the whole arm off the record so it reads as a real object, not a decal. */
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.55));
 }
 .turntable.show-tonearm .tonearm {
   display: block;
 }
-/* Metal shown by shading, not outlines — the counterweight, gimbal and headshell
-   carry SVG gradient fills, so no hard strokes here. */
-.tonearm .cw-stem {
-  stroke: #43434d;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-}
+/* Metal is shown by shading (cross-section gradients on the tube and a spherical
+   counterweight) plus a brushed hairline — no hard outlines. */
 .tonearm .pivot {
   fill: #5c5c66;
-}
-.tonearm .tube {
-  stroke: #4b4b55;
-  stroke-width: 2.7;
-  stroke-linecap: round;
-}
-.tonearm .tube-hi {
-  stroke: #7c7c88;
-  stroke-width: 0.8;
-  stroke-linecap: round;
-  opacity: 0.7;
 }
 .tonearm .cart {
   fill: #15151b;
