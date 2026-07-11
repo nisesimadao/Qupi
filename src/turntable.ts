@@ -9,10 +9,9 @@ const NORMAL_SPEED = 90; // deg/s — one turn every 4 s
 const AUDIO_REF = 90; // deg/s that maps to 1.0× playback
 const SPIN_ACCEL = 2.5; // /s — chase toward the target speed
 const MAX_SPEED = 1350; // deg/s — hard-scratch cap (±)
-const DRAG_SENS = 0.9; // deg per pixel
 const WHEEL_SENS = 0.4; // deg per wheel delta
 const WHEEL_SNAP = 35; // /s — jog spend rate
-const TAP_MOVE = 6; // px — beyond this a press is a scratch, not a tap
+const TAP_MOVE = 6; // deg — beyond this turn a press is a scratch, not a tap
 const TAP_TIME = 250; // ms
 
 export class Turntable {
@@ -23,10 +22,13 @@ export class Turntable {
   private wheelPending = 0;
   private dragging = false;
   private lastMove = 0;
-  private moved = 0;
+  private moved = 0; // degrees turned during this gesture (for tap vs scratch)
   private pressStart = 0;
   private wasDrag = false;
-  private lastPt = { x: 0, y: 0, t: 0 };
+  private center = { x: 0, y: 0 }; // record centre, cached at grab time
+  private lastAngle = 0; // radians — pointer angle around the centre
+  private lastT = 0;
+  private lastVibrate = 0;
   private lastSent = 0;
   private disc: HTMLElement;
   private record: HTMLElement;
@@ -104,24 +106,42 @@ export class Turntable {
       this.wasDrag = false;
       this.moved = 0;
       this.pressStart = performance.now();
-      this.lastPt = { x: e.clientX, y: e.clientY, t: performance.now() };
+      const rect = r.getBoundingClientRect();
+      this.center = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      this.lastAngle = Math.atan2(
+        e.clientY - this.center.y,
+        e.clientX - this.center.x,
+      );
+      this.lastT = performance.now();
       this.lastMove = performance.now();
       void this.audio.resume();
     });
     r.addEventListener("pointermove", (e) => {
       if (!this.dragging) return;
       const now = performance.now();
-      const p = this.lastPt;
-      const dx = e.clientX - p.x;
-      const dy = e.clientY - p.y;
-      const dt = Math.max((now - p.t) / 1000, 0.001);
-      this.lastPt = { x: e.clientX, y: e.clientY, t: now };
+      const dt = Math.max((now - this.lastT) / 1000, 0.001);
+      this.lastT = now;
       this.lastMove = now;
-      this.moved += Math.abs(dx) + Math.abs(dy);
-      const d = (dy - dx) * DRAG_SENS; // down/left = forward
-      this.angle = (this.angle + d) % 360;
-      const inst = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, d / dt));
+      // Scratch by the *rotation* of the pointer around the record's centre, so
+      // turning it clockwise always goes forward and anticlockwise reverses — no
+      // matter which side of the platter you grab.
+      const a = Math.atan2(e.clientY - this.center.y, e.clientX - this.center.x);
+      let d = a - this.lastAngle;
+      d = Math.atan2(Math.sin(d), Math.cos(d)); // shortest signed delta
+      this.lastAngle = a;
+      const deltaDeg = (d * 180) / Math.PI;
+      this.angle = (this.angle + deltaDeg) % 360;
+      this.moved += Math.abs(deltaDeg);
+      const inst = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, deltaDeg / dt));
       this.speed = this.speed * 0.55 + inst * 0.45;
+      // A little tactile buzz on phones that have a motor.
+      if (now - this.lastVibrate > 45 && "vibrate" in navigator) {
+        this.lastVibrate = now;
+        navigator.vibrate(6);
+      }
     });
     const up = () => {
       if (!this.dragging) return;

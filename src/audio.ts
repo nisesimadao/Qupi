@@ -39,11 +39,10 @@ export class QupiAudio {
     await this.ctx?.resume();
   }
 
-  /** Decode a file and hand its PCM to the worklet. Returns the AudioBuffer so
-   *  the caller can build the waveform. */
-  async loadFile(file: File): Promise<AudioBuffer> {
+  /** Decode raw bytes and hand the PCM to the worklet. */
+  async loadArrayBuffer(buf: ArrayBuffer): Promise<AudioBuffer> {
     await this.ensure();
-    const audio = await this.ctx!.decodeAudioData(await file.arrayBuffer());
+    const audio = await this.ctx!.decodeAudioData(buf);
     const channels: Float32Array[] = [];
     for (let c = 0; c < audio.numberOfChannels; c++) {
       channels.push(audio.getChannelData(c));
@@ -52,6 +51,18 @@ export class QupiAudio {
     this.duration = audio.duration;
     this.position = 0;
     return audio;
+  }
+
+  loadFile(file: File): Promise<AudioBuffer> {
+    return file.arrayBuffer().then((b) => this.loadArrayBuffer(b));
+  }
+
+  /** Load a direct audio-file URL (must allow cross-origin fetches). A SoundCloud
+   *  page URL will not work — the browser can't reach its raw samples. */
+  async loadURL(url: string): Promise<AudioBuffer> {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) throw new Error(`fetch ${res.status}`);
+    return this.loadArrayBuffer(await res.arrayBuffer());
   }
 
   /** Set the playback rate (1 = normal, negative = reverse), smoothed ~8 ms. */
