@@ -29,13 +29,19 @@ app.innerHTML = `
       </div>
       <svg class="tonearm" viewBox="0 0 100 100" aria-hidden="true">
         <g class="arm-g">
-          <line class="cw" x1="106" y1="-4" x2="115" y2="-13" />
-          <circle class="cw-w" cx="116.5" cy="-14.5" r="3.6" />
-          <line class="tube" x1="106" y1="-4" x2="88" y2="30" />
-          <circle class="pivot" cx="106" cy="-4" r="3.8" />
-          <rect class="head" x="83.4" y="27.6" width="8.6" height="7.4" rx="1.2"
-            transform="rotate(28 87.7 31.3)" />
-          <circle class="tip" cx="85.6" cy="35" r="1.4" />
+          <line class="cw-stem" x1="104" y1="-2" x2="113" y2="-11" />
+          <rect class="cw" x="109" y="-17" width="11" height="10" rx="5"
+            transform="rotate(-44 114.5 -12)" />
+          <rect class="base" x="98" y="-8" width="12" height="12" rx="3" />
+          <circle class="pivot" cx="104" cy="-2" r="2.6" />
+          <line class="tube" x1="104" y1="-2" x2="88.5" y2="28" />
+          <line class="tube-hi" x1="104" y1="-2" x2="88.5" y2="28" />
+          <g transform="rotate(22 88.5 28)">
+            <rect class="head" x="82.8" y="24.2" width="11.4" height="6.6" rx="1.4" />
+            <rect class="cart" x="85.5" y="30.4" width="6" height="3.6" rx="0.7" />
+            <line class="stylus" x1="88.5" y1="33.8" x2="88.5" y2="36.4" />
+            <circle class="tip" cx="88.5" cy="36.6" r="1" />
+          </g>
         </g>
       </svg>
     </div>
@@ -167,9 +173,9 @@ function armTick(): void {
   // the track plays (needle tracks inward), plus a drift/shiver from the spin.
   const track = prog * 15;
   const r = turntable.ratio;
-  const drag = Math.max(-3, Math.min(3, r * 0.8)); // pulled along with the spin
+  const drag = Math.max(-3, Math.min(3, -r * 0.8)); // dragged against the spin
   const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.3, Math.abs(r) * 0.6);
-  armG.setAttribute("transform", `rotate(${track + drag + shiver} 106 -4)`);
+  armG.setAttribute("transform", `rotate(${track + drag + shiver} 104 -2)`);
 }
 requestAnimationFrame(armTick);
 

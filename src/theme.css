@@ -276,30 +276,47 @@ body::before {
 .turntable.show-tonearm .tonearm {
   display: block;
 }
-.tonearm .tube {
-  stroke: #70707c;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-}
-.tonearm .cw {
-  stroke: #4c4c56;
+.tonearm .cw-stem {
+  stroke: #4a4a54;
   stroke-width: 2.4;
   stroke-linecap: round;
 }
-.tonearm .cw-w {
-  fill: #34343d;
-  stroke: #50505a;
-  stroke-width: 0.5;
+.tonearm .cw {
+  fill: #2b2b33;
+  stroke: #55555f;
+  stroke-width: 0.6;
+}
+.tonearm .base {
+  fill: #26262e;
+  stroke: #45454f;
+  stroke-width: 0.6;
 }
 .tonearm .pivot {
-  fill: #2c2c34;
-  stroke: #4a4a54;
-  stroke-width: 0.7;
+  fill: #45454f;
+}
+.tonearm .tube {
+  stroke: #565660;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.tonearm .tube-hi {
+  stroke: #8e8e9a;
+  stroke-width: 0.9;
+  stroke-linecap: round;
 }
 .tonearm .head {
-  fill: #23232b;
+  fill: #202028;
   stroke: #4a4a54;
-  stroke-width: 0.5;
+  stroke-width: 0.6;
+}
+.tonearm .cart {
+  fill: #2d2d36;
+  stroke: #4a4a54;
+  stroke-width: 0.4;
+}
+.tonearm .stylus {
+  stroke: var(--accent);
+  stroke-width: 0.9;
 }
 .tonearm .tip {
   fill: var(--accent);
