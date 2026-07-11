@@ -203,9 +203,13 @@ body::before {
 }
 
 .turntable {
+  --deck: min(66vw, 42vh, 400px);
   position: relative;
-  width: min(72vw, 46vh, 420px);
+  width: var(--deck);
   aspect-ratio: 1;
+  /* Reserve room for the plinth, which overflows the record by 15% each side, so
+     it never laps over the status line or the seek bar below. */
+  margin-block: calc(var(--deck) * 0.17);
 }
 .record {
   position: relative;
