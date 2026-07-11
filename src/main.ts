@@ -184,17 +184,20 @@ optPlatter.addEventListener("change", () => apply("platter", optPlatter.checked)
 
 // The needle: it tracks inward as the track plays, and drifts / trembles with the
 // friction of the spin — dragged along by a scratch, shivering at speed.
+let armAngle = 0; // eased tracking angle, so it never snaps
 function armTick(): void {
   requestAnimationFrame(armTick);
   if (!optTonearm.checked) return;
   const prog = audio.duration > 0 ? audio.position / audio.duration : 0;
-  // The arm is drawn resting on the outer groove; rotate it around its pivot as
-  // the track plays (needle tracks inward), plus a drift/shiver from the spin.
-  const track = prog * 15;
+  // Ease toward the target so the loop wrap (position 1→0) and any jitter in the
+  // reported position sweep smoothly back instead of snapping the needle around.
+  armAngle += (prog * 15 - armAngle) * 0.06;
   const r = turntable.ratio;
   const drag = Math.max(-3, Math.min(3, -r * 0.8)); // dragged against the spin
-  const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.3, Math.abs(r) * 0.6);
-  armG.setAttribute("transform", `rotate(${track + drag + shiver} 104 -2)`);
+  // Tremble only while actually scratching, not during steady playback.
+  const excess = Math.max(0, Math.abs(r) - 1.2);
+  const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.1, excess * 1.1);
+  armG.setAttribute("transform", `rotate(${armAngle + drag + shiver} 104 -2)`);
 }
 requestAnimationFrame(armTick);
 
