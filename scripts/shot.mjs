@@ -10,6 +10,12 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 900, height: 1100 } });
 page.on("console", (m) => console.log("[page]", m.text()));
 page.on("pageerror", (e) => console.log("[pageerror]", e.message));
+if (process.argv.includes("deck")) {
+  await page.addInitScript(() => {
+    localStorage.setItem("qupi.tonearm", "1");
+    localStorage.setItem("qupi.platter", "1");
+  });
+}
 await page.goto(url, { waitUntil: "load" });
 await page.waitForTimeout(1200); // let the default track decode
 if (process.argv[4] === "play") {

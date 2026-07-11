@@ -8,15 +8,22 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `
   <div class="topbar">
     <div class="wordmark"><b>QUPI</b><span>turntable</span></div>
-    <button class="loader" id="loader" aria-label="Load a track" title="Load a track">♪</button>
+    <div class="tools">
+      <button class="icon-btn" id="settings" aria-label="Settings" title="Settings">⚙</button>
+      <button class="icon-btn" id="loader" aria-label="Load a track" title="Load a track">♪</button>
+    </div>
   </div>
   <div class="deck">
-    <div class="record" role="button" tabindex="0" aria-label="Record — tap to play, drag to scratch">
-      <div class="disc">
-        <div class="grooves"></div>
-        <div class="reflection"></div>
-        <div class="ring1"><div class="ring2"><div class="label"><div class="hole"></div></div></div></div>
+    <div class="turntable">
+      <div class="platter"></div>
+      <div class="record" role="button" tabindex="0" aria-label="Record — tap to play, drag to scratch">
+        <div class="disc">
+          <div class="grooves"></div>
+          <div class="reflection"></div>
+          <div class="ring1"><div class="ring2"><div class="label"><div class="hole"></div></div></div></div>
+        </div>
       </div>
+      <div class="tonearm"><div class="pivot"></div><div class="arm"></div><div class="head"></div></div>
     </div>
     <div class="status" id="status">loading…</div>
   </div>
@@ -30,30 +37,39 @@ app.innerHTML = `
     </div>
     <div class="note">A direct audio-file URL (with CORS). SoundCloud page links can't be scratched.</div>
   </div>
+  <div class="panel settings" id="settings-panel" hidden>
+    <label><input type="checkbox" id="opt-tonearm" /> <span>Tonearm</span></label>
+    <label><input type="checkbox" id="opt-platter" /> <span>Platter</span></label>
+  </div>
 `;
 
 const record = app.querySelector<HTMLElement>(".record")!;
 const disc = app.querySelector<HTMLElement>(".disc")!;
+const turntableEl = app.querySelector<HTMLElement>(".turntable")!;
+const tonearm = app.querySelector<HTMLElement>(".tonearm")!;
 const status = app.querySelector<HTMLElement>("#status")!;
 const loader = app.querySelector<HTMLButtonElement>("#loader")!;
+const settingsBtn = app.querySelector<HTMLButtonElement>("#settings")!;
 const panel = app.querySelector<HTMLElement>("#panel")!;
+const settingsPanel = app.querySelector<HTMLElement>("#settings-panel")!;
 const fileBtn = app.querySelector<HTMLButtonElement>("#file-btn")!;
 const fileInput = app.querySelector<HTMLInputElement>("#file")!;
 const urlInput = app.querySelector<HTMLInputElement>("#url")!;
 const urlBtn = app.querySelector<HTMLButtonElement>("#url-btn")!;
+const optTonearm = app.querySelector<HTMLInputElement>("#opt-tonearm")!;
+const optPlatter = app.querySelector<HTMLInputElement>("#opt-platter")!;
 
 const audio = new QupiAudio();
 new EdgeSpectrum(() => audio.analyser);
 const seek = new SeekBar(audio);
-app.querySelector(".deck")!.appendChild(seek.el);
+app.querySelector(".deck")!.insertBefore(seek.el, status.nextSibling);
 let trackName = "";
 
-new Turntable(disc, record, audio, (playing) => {
+const turntable = new Turntable(disc, record, audio, (playing) => {
   if (!audio.loaded) status.textContent = "loading a track…";
   else void playing;
 });
 
-// Load a default track so it plays the instant you tap — no dialog, no friction.
 audio
   .loadURL(import.meta.env.BASE_URL + "bgm.mp3")
   .then(() => {
@@ -65,8 +81,9 @@ audio
     status.textContent = "tap ♪ to load a track";
   });
 
-// The loader is tucked away; open it only when you want your own track.
+// --- loaders ------------------------------------------------------------
 loader.addEventListener("click", () => {
+  settingsPanel.hidden = true;
   panel.hidden = !panel.hidden;
 });
 fileBtn.addEventListener("click", () => fileInput.click());
@@ -88,7 +105,6 @@ function tryUrl(): void {
   );
   void load(() => audio.loadURL(url), name, "url");
 }
-
 async function load(
   fn: () => Promise<unknown>,
   name: string,
@@ -96,7 +112,7 @@ async function load(
 ): Promise<void> {
   status.textContent = "decoding…";
   try {
-    await audio.resume(); // the click is a user gesture — wake the engine
+    await audio.resume();
     await fn();
     trackName = name;
     status.textContent = `${trackName} — tap to play`;
@@ -110,6 +126,36 @@ async function load(
     console.error("[qupi] load failed:", e);
   }
 }
+
+// --- settings: the tonearm and the platter, remembered ------------------
+settingsBtn.addEventListener("click", () => {
+  panel.hidden = true;
+  settingsPanel.hidden = !settingsPanel.hidden;
+});
+function apply(name: "tonearm" | "platter", on: boolean): void {
+  turntableEl.classList.toggle(`show-${name}`, on);
+  localStorage.setItem(`qupi.${name}`, on ? "1" : "0");
+}
+optTonearm.checked = localStorage.getItem("qupi.tonearm") === "1";
+optPlatter.checked = localStorage.getItem("qupi.platter") === "1";
+apply("tonearm", optTonearm.checked);
+apply("platter", optPlatter.checked);
+optTonearm.addEventListener("change", () => apply("tonearm", optTonearm.checked));
+optPlatter.addEventListener("change", () => apply("platter", optPlatter.checked));
+
+// The needle: it tracks inward as the track plays, and drifts / trembles with the
+// friction of the spin — dragged along by a scratch, shivering at speed.
+function armTick(): void {
+  requestAnimationFrame(armTick);
+  if (!optTonearm.checked) return;
+  const prog = audio.duration > 0 ? audio.position / audio.duration : 0;
+  const rest = 26 + prog * 16; // outer groove → inner groove (swings left, so negate)
+  const r = turntable.ratio;
+  const drag = Math.max(-3.5, Math.min(3.5, r * 0.9)); // pulled along with the spin
+  const shiver = Math.sin(performance.now() * 0.05) * Math.min(1.4, Math.abs(r) * 0.7);
+  tonearm.style.transform = `rotate(${-rest + drag + shiver}deg)`;
+}
+requestAnimationFrame(armTick);
 
 record.addEventListener("keydown", (e) => {
   if (e.key === " " || e.key === "Enter") e.preventDefault();

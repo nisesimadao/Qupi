@@ -73,7 +73,11 @@ body::before {
   align-items: baseline;
   gap: 12px;
 }
-.loader {
+.tools {
+  display: flex;
+  gap: 10px;
+}
+.icon-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -84,9 +88,22 @@ body::before {
   line-height: 1;
   cursor: pointer;
 }
-.loader:hover {
+.icon-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+.panel.settings label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+.panel.settings input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
 }
 
 /* --- load panel (tucked away) ----------------------------------------- */
@@ -150,14 +167,103 @@ body::before {
   justify-content: center;
 }
 
-.record {
+.turntable {
+  position: relative;
   width: min(72vw, 46vh, 420px);
   aspect-ratio: 1;
+}
+.record {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   touch-action: none;
   cursor: grab;
 }
 .record.dragging {
   cursor: grabbing;
+}
+
+/* --- platter (the deck the record sits on) ---------------------------- */
+.platter {
+  position: absolute;
+  inset: -7%;
+  z-index: 0;
+  border-radius: 50%;
+  background: #0a0a0f;
+  border: 1px solid #1c1c26;
+  box-shadow:
+    inset 0 0 0 6px #101018,
+    0 22px 50px rgba(0, 0, 0, 0.6);
+  display: none;
+}
+.turntable.show-platter .platter {
+  display: block;
+}
+/* A tiny spindle boss and two slipmat rings for a bit of deck detail. */
+.turntable.show-platter .platter::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid #16161f;
+  box-shadow: inset 0 0 0 14px transparent, 0 0 0 1px #141420;
+}
+
+/* --- tonearm (pivots top-right, needle rests on the record) ----------- */
+.tonearm {
+  position: absolute;
+  top: -3%;
+  right: 4%;
+  z-index: 3;
+  width: 16px;
+  height: 66%;
+  transform-origin: 8px 8px;
+  pointer-events: none;
+  display: none;
+  transform: rotate(-26deg);
+}
+.turntable.show-tonearm .tonearm {
+  display: block;
+}
+.tonearm .pivot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2a2a34;
+  border: 1px solid #3a3a46;
+}
+.tonearm .arm {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  width: 4px;
+  height: calc(100% - 30px);
+  background: linear-gradient(#4a4a56, #33333d);
+  border-radius: 2px;
+}
+.tonearm .head {
+  position: absolute;
+  bottom: 0;
+  left: 1px;
+  width: 14px;
+  height: 22px;
+  background: #23232c;
+  border: 1px solid #3a3a46;
+  border-radius: 2px;
+}
+.tonearm .head::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 5px;
+  background: var(--accent);
 }
 
 .disc {
