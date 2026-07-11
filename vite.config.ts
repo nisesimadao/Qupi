@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 
-// Served from GitHub Pages at nisesimadao.github.io/Qupi/, so assets resolve
-// under /Qupi/. `npm run dev` overrides this to "/" automatically in serve mode.
-export default defineConfig(({ command }) => ({
-  base: command === "build" ? "/Qupi/" : "/",
-}));
+// Relative asset paths, so the same build works served at "/" (local preview) and
+// under "/Qupi/" (GitHub Pages) without a base mismatch.
+export default defineConfig({
+  base: "./",
+});

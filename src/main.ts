@@ -1,6 +1,7 @@
 import "./theme.css";
 import { QupiAudio } from "./audio";
 import { Turntable } from "./turntable";
+import { EdgeSpectrum } from "./spectrum";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `
@@ -29,6 +30,7 @@ const loadBtn = app.querySelector<HTMLButtonElement>("#load")!;
 const fileInput = app.querySelector<HTMLInputElement>("#file")!;
 
 const audio = new QupiAudio();
+new EdgeSpectrum(() => audio.analyser);
 let trackName = "";
 
 const turntable = new Turntable(disc, record, audio, (playing) => {
