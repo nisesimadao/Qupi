@@ -7,7 +7,8 @@ import type { QupiAudio } from "./audio";
 
 const NORMAL_SPEED = 90; // deg/s — one turn every 4 s
 const AUDIO_REF = 90; // deg/s that maps to 1.0× playback
-const SPIN_ACCEL = 2.5; // /s — chase toward the target speed
+const SPIN_ACCEL = 2.5; // /s — chase 33⅓ when the motor is on
+const COAST_FRICTION = 0.9; // /s — motor-off glide; low, so a flick spins on
 const MAX_SPEED = 1350; // deg/s — hard-scratch cap (±)
 const WHEEL_SENS = 0.4; // deg per wheel delta
 const WHEEL_SNAP = 35; // /s — jog spend rate
@@ -67,11 +68,17 @@ export class Turntable {
 
   private step(dt: number, now: number): void {
     if (this.dragging) {
-      // A finger holding the platter still brakes it quickly.
-      if (now - this.lastMove > 60) this.speed *= Math.exp(-dt * 25);
-    } else if (this.playing || Math.abs(this.speed) >= 0.5) {
-      const target = this.playing ? NORMAL_SPEED : 0;
-      this.speed += (target - this.speed) * Math.min(1, dt * SPIN_ACCEL);
+      // A finger holding the platter still brakes it — but gently, so it feels
+      // like a slipmat under your hand, not a hard clutch.
+      if (now - this.lastMove > 60) this.speed *= Math.exp(-dt * 16);
+    } else if (this.playing) {
+      // Motor on: ease up to and hold 33⅓.
+      this.speed += (NORMAL_SPEED - this.speed) * Math.min(1, dt * SPIN_ACCEL);
+      this.angle = (this.angle + this.speed * dt) % 360;
+    } else if (Math.abs(this.speed) >= 0.3) {
+      // Motor off: the platter glides on its slipmat. Low friction, so a flick
+      // keeps spinning a good while and coasts down smoothly.
+      this.speed *= Math.exp(-dt * COAST_FRICTION);
       this.angle = (this.angle + this.speed * dt) % 360;
     } else {
       this.speed = 0;
@@ -136,7 +143,9 @@ export class Turntable {
       this.angle = (this.angle + deltaDeg) % 360;
       this.moved += Math.abs(deltaDeg);
       const inst = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, deltaDeg / dt));
-      this.speed = this.speed * 0.55 + inst * 0.45;
+      // Lean a little more on the live velocity so a flick's momentum carries
+      // into the coast (a slippier release).
+      this.speed = this.speed * 0.45 + inst * 0.55;
       // A little tactile buzz on phones that have a motor.
       if (now - this.lastVibrate > 45 && "vibrate" in navigator) {
         this.lastVibrate = now;
