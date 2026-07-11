@@ -39,10 +39,19 @@ export class QupiAudio {
     await this.ctx?.resume();
   }
 
+  /** decodeAudioData across browsers: some still use the callback form and
+   *  return `undefined` from the promise form, so support both. */
+  private decode(buf: ArrayBuffer): Promise<AudioBuffer> {
+    return new Promise((resolve, reject) => {
+      const ret = this.ctx!.decodeAudioData(buf, resolve, reject);
+      if (ret && typeof ret.then === "function") ret.then(resolve, reject);
+    });
+  }
+
   /** Decode raw bytes and hand the PCM to the worklet. */
   async loadArrayBuffer(buf: ArrayBuffer): Promise<AudioBuffer> {
     await this.ensure();
-    const audio = await this.ctx!.decodeAudioData(buf);
+    const audio = await this.decode(buf);
     const channels: Float32Array[] = [];
     for (let c = 0; c < audio.numberOfChannels; c++) {
       channels.push(audio.getChannelData(c));

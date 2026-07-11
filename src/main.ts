@@ -73,7 +73,7 @@ fileBtn.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files?.[0];
   if (!file) return;
-  await load(() => audio.loadFile(file), file.name.replace(/\.[^.]+$/, ""));
+  await load(() => audio.loadFile(file), file.name.replace(/\.[^.]+$/, ""), "file");
 });
 urlBtn.addEventListener("click", () => tryUrl());
 urlInput.addEventListener("keydown", (e) => {
@@ -86,20 +86,28 @@ function tryUrl(): void {
     /\.[^.]+$/,
     "",
   );
-  void load(() => audio.loadURL(url), name);
+  void load(() => audio.loadURL(url), name, "url");
 }
 
-async function load(fn: () => Promise<unknown>, name: string): Promise<void> {
+async function load(
+  fn: () => Promise<unknown>,
+  name: string,
+  kind: "file" | "url",
+): Promise<void> {
   status.textContent = "decoding…";
   try {
+    await audio.resume(); // the click is a user gesture — wake the engine
     await fn();
     trackName = name;
     status.textContent = `${trackName} — tap to play`;
     seek.setVisible(true);
     panel.hidden = true;
   } catch (e) {
-    status.textContent = "couldn't load that (try a direct, CORS-enabled URL)";
-    console.error(e);
+    status.textContent =
+      kind === "url"
+        ? "couldn't load that URL (needs a direct, CORS-enabled audio file)"
+        : "couldn't decode that file — try MP3, WAV, M4A, FLAC, or OGG";
+    console.error("[qupi] load failed:", e);
   }
 }
 
