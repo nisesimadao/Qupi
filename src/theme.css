@@ -77,33 +77,68 @@ body::before {
   display: flex;
   gap: 10px;
 }
+/* Material-You-ish tonal icon buttons: a soft accent-tinted surface, no border. */
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 17px;
-  line-height: 1;
+  border: none;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--text);
   cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
 }
-.icon-btn:hover {
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+.icon-btn:hover,
+.icon-btn:active {
+  background: color-mix(in srgb, var(--accent) 24%, var(--surface));
   color: var(--accent);
-  border-color: var(--accent);
 }
+
+/* Material switches for the settings toggles: text left, switch right. */
 .panel.settings label {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   font-size: 14px;
   color: var(--text);
   cursor: pointer;
 }
-.panel.settings input {
+.panel.settings input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.panel.settings input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
   width: 16px;
   height: 16px;
-  accent-color: var(--accent);
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 160ms ease, background 160ms ease;
+}
+.panel.settings input[type="checkbox"]:checked {
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.panel.settings input[type="checkbox"]:checked::after {
+  transform: translateX(18px);
+  background: var(--accent);
 }
 
 /* --- load panel (tucked away) ----------------------------------------- */
@@ -184,44 +219,60 @@ body::before {
   cursor: grabbing;
 }
 
-/* --- platter (the deck the record sits on) ---------------------------- */
+/* --- plinth (レコード台): a square wooden deck the record sits on ------ */
 .platter {
   position: absolute;
-  inset: -7%;
+  inset: -19%;
   z-index: 0;
-  border-radius: 50%;
-  background: #0a0a0f;
-  border: 1px solid #1c1c26;
+  border-radius: 7%;
+  /* Warm walnut with a fine straight grain and a soft top bevel. */
+  background:
+    repeating-linear-gradient(
+      91deg,
+      rgba(0, 0, 0, 0.13) 0 1px,
+      rgba(0, 0, 0, 0) 1px 6px
+    ),
+    repeating-linear-gradient(
+      91deg,
+      rgba(255, 255, 255, 0.03) 0 1px,
+      rgba(255, 255, 255, 0) 1px 11px
+    ),
+    linear-gradient(158deg, #4a3625 0%, #38281a 55%, #2c1f13 100%);
   box-shadow:
-    inset 0 0 0 6px #101018,
-    0 22px 50px rgba(0, 0, 0, 0.6);
+    inset 0 2px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 30px 60px rgba(0, 0, 0, 0.55);
   display: none;
 }
 .turntable.show-platter .platter {
   display: block;
 }
-/* A tiny spindle boss and two slipmat rings for a bit of deck detail. */
+/* A round slipmat recess under the record, so it reads as a real deck. */
 .turntable.show-platter .platter::after {
   content: "";
   position: absolute;
-  inset: 12%;
+  left: 50%;
+  top: 50%;
+  width: 66%;
+  height: 66%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px solid #16161f;
-  box-shadow: inset 0 0 0 14px transparent, 0 0 0 1px #141420;
+  background: #14100c;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
 }
 
-/* --- tonearm (pivots top-right, needle rests on the record) ----------- */
+/* --- tonearm: pivots at the plinth's top-right, needle on the record --- */
 .tonearm {
   position: absolute;
-  top: -3%;
-  right: 4%;
+  top: -7%;
+  right: -8%;
   z-index: 3;
   width: 16px;
-  height: 66%;
+  height: 52%;
   transform-origin: 8px 8px;
   pointer-events: none;
   display: none;
-  transform: rotate(-26deg);
+  transform: rotate(-22deg);
 }
 .turntable.show-tonearm .tonearm {
   display: block;

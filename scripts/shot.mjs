@@ -22,6 +22,10 @@ if (process.argv[4] === "play") {
   await page.click(".record"); // tap to play
   await page.waitForTimeout(1800); // let it spin up and the spectrum fill
 }
+if (process.argv.includes("settings")) {
+  await page.click("#settings");
+  await page.waitForTimeout(200);
+}
 await page.screenshot({ path: out });
 await browser.close();
 console.log("wrote", out);
