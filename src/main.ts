@@ -2,6 +2,7 @@ import "./theme.css";
 import { QupiAudio } from "./audio";
 import { Turntable } from "./turntable";
 import { EdgeSpectrum } from "./spectrum";
+import { SeekBar } from "./seekbar";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `
@@ -43,6 +44,8 @@ const urlBtn = app.querySelector<HTMLButtonElement>("#url-btn")!;
 
 const audio = new QupiAudio();
 new EdgeSpectrum(() => audio.analyser);
+const seek = new SeekBar(audio);
+app.querySelector(".deck")!.appendChild(seek.el);
 let trackName = "";
 
 new Turntable(disc, record, audio, (playing) => {
@@ -56,6 +59,7 @@ audio
   .then(() => {
     trackName = "Demo";
     status.textContent = "tap the record to play";
+    seek.setVisible(true);
   })
   .catch(() => {
     status.textContent = "tap ♪ to load a track";
@@ -91,6 +95,7 @@ async function load(fn: () => Promise<unknown>, name: string): Promise<void> {
     await fn();
     trackName = name;
     status.textContent = `${trackName} — tap to play`;
+    seek.setVisible(true);
     panel.hidden = true;
   } catch (e) {
     status.textContent = "couldn't load that (try a direct, CORS-enabled URL)";
