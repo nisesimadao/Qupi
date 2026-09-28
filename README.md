@@ -1,8 +1,8 @@
 # QUPI
 
-**A scratchable turntable in your browser.** Load a track, spin the record, and
-scratch it — slow it and the pitch drops, shove it and it reverses, stop it and it
-fades to silence. Works on the desktop and the phone.
+Qupi is a browser-based turntable for scratching audio files.
+Playback speed and pitch follow the record's angular velocity, and reversing the platter reverses playback.
+It works in desktop and mobile browsers.
 
 [![Live](https://img.shields.io/badge/%E2%96%B6_live-nisesimadao.github.io%2FQupi-9b8ec4)](https://nisesimadao.github.io/Qupi/)
 [![Deploy](https://github.com/nisesimadao/Qupi/actions/workflows/pages.yml/badge.svg)](https://github.com/nisesimadao/Qupi/actions/workflows/pages.yml)
@@ -10,33 +10,30 @@ fades to silence. Works on the desktop and the phone.
 
 <img src="docs/screenshot.png" alt="Qupi" width="720" />
 
-[日本語版READMEはこちら](./README_jp.md)
+[日本語版 README](./README_jp.md)
 
-Qupi's one idea: **rotation is the truth; the sound follows the spin.** The
-record's angular velocity is the only real state, and the audio is played back at
-`velocity ÷ reference` — nothing chases the sound; everything follows the platter.
+The platter's angular velocity is the primary playback state.
+Audio speed is calculated as `velocity ÷ reference`, so the interface and audio engine use the same rotation value rather than synchronizing separate animation and playback states.
 
-The audio runs entirely in an `AudioWorklet` (a variable-speed playback head) with
-no `SharedArrayBuffer`, so it hosts as plain static files on GitHub Pages.
+Audio runs in an `AudioWorklet` that implements a variable-speed playback head.
+Qupi does not require `SharedArrayBuffer`, so it can be hosted as a static site on GitHub Pages.
 
-> The **native / handheld** edition — for the Trimui Brick, desktops, and the
-> Raspberry Pi, with a software-rendered UI and gamepad controls — is its Rust
-> sibling, [Qupi-Rust](https://github.com/nisesimadao/Qupi-Rust).
+> The native edition for Trimui Brick, desktop systems, and Raspberry Pi is [Qupi-Rust](https://github.com/nisesimadao/Qupi-Rust).
+> It uses a software-rendered UI and gamepad controls.
 
-## At a Glance
+## Features
 
-- **Scratch any track** — drop in an audio file and work the record.
-- **True turntable feel** — real pitch bend and reverse from the spin, not an
-  effect bolted on top.
-- **Runs anywhere** — a tiny static site (a few kB of JS), so it opens instantly
-  in any modern browser, mobile included.
-- **No install, no permissions** — just a URL.
+- **Audio-file scratching**: load an audio file and control playback from the platter.
+- **Rotation-based playback**: pitch bend and reverse playback are derived from platter speed.
+- **Static web app**: the project can be deployed without an application server.
+- **Mobile support**: the interface works in modern desktop and mobile browsers.
+- **No additional permissions**: open the site and select a local audio file.
 
 ## Controls
 
-- **Tap** the record to play / stop.
-- **Drag** it to scratch (down / left = forward, up / right = rewind).
-- **Wheel** to jog.
+- **Tap** the record to toggle playback.
+- **Drag** to scratch: down or left moves forward; up or right rewinds.
+- Use the **mouse wheel** to jog.
 
 ## Develop
 
@@ -51,11 +48,9 @@ npm run dev
 npm run build   # → dist/
 ```
 
-`.github/workflows/pages.yml` builds and publishes `dist/` to GitHub Pages on every
-push to `main`.
+`.github/workflows/pages.yml` builds and publishes `dist/` to GitHub Pages on pushes to `main`.
 
 ## Credits
 
-- **[Vite](https://vite.dev/)** — build tooling (MIT).
-- The turntable physics and the `scratch-processor` AudioWorklet are adapted from
-  the nisesimadao portfolio.
+- **[Vite](https://vite.dev/)**: build tooling (MIT).
+- The turntable physics and `scratch-processor` AudioWorklet are adapted from an earlier nisesimadao implementation.
